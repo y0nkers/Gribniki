@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="points">
+        <item quantity="zero">0 очков</item> <!-- отсутствие чего-либо -->
+        <item quantity="one">%d очко</item> <!-- для заканчивающихся на единицу -->
+        <item quantity="two">%d очка</item> <!-- для заканчивающихся на двойку -->
+        <item quantity="few">%d очка</item> <!-- для заканчивающихся на 2, 3, 4-->
+        <item quantity="many">%d очков</item> <!-- от 5 и выше-->
+        <item quantity="other">%d очков</item> <!-- всё остальное-->
+    </plurals>
+</resources>
