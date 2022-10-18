@@ -1,8 +1,6 @@
 package com.example.gribniki;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity {

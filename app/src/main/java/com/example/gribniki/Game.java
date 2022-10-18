@@ -4,7 +4,6 @@ import android.graphics.Point;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
     final private int MUSHROOMS_COUNT = 7;

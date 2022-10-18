@@ -35,8 +35,9 @@ public class DrawView extends View {
     SharedPreferences settings;
     SharedPreferences.Editor editor;
 
-    int click_sound = 0, pickup_sound = 0, bonus_sound = 0, trap_sound = 0, bear_sound = 0, nothing_sound = 0, gameover_sound = 0;
+    int click_sound, pickup_sound, bonus_sound, trap_sound, bear_sound, nothing_sound, gameover_sound;
     RectF panel, heartImage, mushroomImage, soundButton, musicButton, restartButton;
+    RectF temp = new RectF();
 
     public DrawView(Context context) {
         super(context);
@@ -62,12 +63,7 @@ public class DrawView extends View {
         gameover_sound = soundPool.load(context, R.raw.gameover, 1);
 
         music = MediaPlayer.create(context, R.raw.background);
-        music.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                music.start();
-            }
-        });
+        music.setOnCompletionListener(mediaPlayer -> music.start());
 
         settings = context.getSharedPreferences("Settings", MODE_PRIVATE);
         editor = settings.edit();
@@ -84,7 +80,8 @@ public class DrawView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        myDrawBitmap(canvas, R.drawable.background, new RectF(0, 0, width, height));
+        temp.set(0, 0, width, height);
+        myDrawBitmap(canvas, R.drawable.background, temp);
         drawTopPanel(canvas);
         drawObjects(canvas);
 
@@ -121,7 +118,7 @@ public class DrawView extends View {
         paint.setTextSize(getResources().getDimensionPixelSize(R.dimen.fontSize));
         Rect rect = new Rect();
         paint.getTextBounds(str, 0, str.length(), rect);
-        float textWidth, textHeight;
+        float textHeight;
         //textWidth = paint.measureText(lives);
         textHeight = rect.height();
         canvas.drawText(str, width / 7f, height / 40f + (textHeight / 2f), paint);
@@ -136,7 +133,7 @@ public class DrawView extends View {
         textHeight = rect.height();
         canvas.drawText(str, 3 * width / 7f + 10, height / 40f + (textHeight / 2f), paint);
 
-        int id = 0;
+        int id;
         // Sound button
         if (settings.getBoolean("Sound", true)) id = R.drawable.sound_on;
         else id = R.drawable.sound_off;
@@ -216,7 +213,6 @@ public class DrawView extends View {
                 int[] objects = game.getObjects();
                 boolean[] opened = game.getOpened();
                 int sprite_width = game.BUSH_WIDTH, sprite_height = game.BUSH_HEIGHT;
-                int id;
 
                 for (int i = 0; i < objectsCount; ++i) {
                     // Check if click on object
@@ -227,9 +223,8 @@ public class DrawView extends View {
                         ObjectType type = ObjectType.values()[objects[i]];
                         switch (type) {
                             case MUSHROOM:
-                                id = R.drawable.mushroom;
                                 game.setPoints(game.getPoints() + 1);
-                                Toast.makeText(this.getContext(), "Под кустом вы нашли небольшую группу грибов.\n+1 очко!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this.getContext(), "Под кустом вы нашли небольшую группу грибов.\n+1 очко!", Toast.LENGTH_SHORT).show();
                                 if (settings.getBoolean("Sound", true))
                                     soundPool.play(pickup_sound, 1, 1, 1, 0, 1);
                                 break;
@@ -237,23 +232,22 @@ public class DrawView extends View {
                                 // add bonus: + 5 mushrooms or + 3 lives
                                 if (game.getRandom().nextBoolean()) {
                                     game.setPoints(game.getPoints() + 5);
-                                    Toast.makeText(this.getContext(), "Под кустом вы нашли огромную группу грибов!\n+5 очков!", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this.getContext(), "Под кустом вы нашли огромную группу грибов!\n+5 очков!", Toast.LENGTH_SHORT).show();
                                 } else {
                                     game.setLives(game.getLives() + 4); // Compensate -1 live when player clicked on object
-                                    Toast.makeText(this.getContext(), "Под кустом вы нашли кое-что лучше, чем грибы.\n+3 жизни", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this.getContext(), "Под кустом вы нашли кое-что лучше, чем грибы.\n+3 жизни", Toast.LENGTH_SHORT).show();
                                 }
                                 if (settings.getBoolean("Sound", true))
                                     soundPool.play(bonus_sound, 1, 1, 1, 0, 1);
                                 break;
                             case TRAP:
-                                id = R.drawable.bear;
                                 if (game.getRandom().nextBoolean()) {
-                                    Toast.makeText(this.getContext(), "Зайдя за куст, вы наткнулись на бурого медведя.\nRest in Peace...", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this.getContext(), "Зайдя за куст, вы наткнулись на бурого медведя.\nRest in Peace...", Toast.LENGTH_SHORT).show();
                                     game.setLives(0);
                                     if (settings.getBoolean("Sound", true))
                                         soundPool.play(bear_sound, 1, 1, 1, 0, 1);
                                 } else {
-                                    Toast.makeText(this.getContext(), "Зайдя за куст, вы наступили на капкан.\n-1 жизнь. Ещё легко отделались!", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this.getContext(), "Зайдя за куст, вы наступили на капкан.\n-1 жизнь. Ещё легко отделались!", Toast.LENGTH_SHORT).show();
                                     if (game.getLives() != 0) game.setLives(game.getLives() - 1);
                                     if (settings.getBoolean("Sound", true))
                                         soundPool.play(trap_sound, 1, 1, 1, 0, 1);
@@ -261,7 +255,7 @@ public class DrawView extends View {
                                 break;
                             case NOTHING:
                                 soundPool.play(nothing_sound, 1, 1, 1, 0, 1);
-                                Toast.makeText(this.getContext(), "Под кустом вы ничего не нашли.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this.getContext(), "Под кустом вы ничего не нашли.", Toast.LENGTH_SHORT).show();
                                 break;
                         }
                         if (game.getLives() == 0) game.setActive(false);
@@ -290,7 +284,7 @@ public class DrawView extends View {
                         music.prepare();
                         music.seekTo(0);
                     } catch (Throwable t) {
-                        Toast.makeText(this.getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this.getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 } else music.start();
             }
